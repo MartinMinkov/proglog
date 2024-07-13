@@ -43,11 +43,11 @@ func (a *API) Start() error {
 }
 
 type ConsumeRequest struct {
-	Offset uint64 `json: "offset"`
+	Offset uint64 `json:"offset"`
 }
 
 type ConsumeResponse struct {
-	Record Record `json: "record"`
+	Record Record `json:"record"`
 }
 
 func (a *API) handleConsume(w http.ResponseWriter, r *http.Request) {
@@ -72,11 +72,11 @@ func (a *API) handleConsume(w http.ResponseWriter, r *http.Request) {
 }
 
 type ProduceRequest struct {
-	Record Record `json: "record"`
+	Record Record `json:"record"`
 }
 
 type ProduceResponse struct {
-	Offset uint64 `json: "offset"`
+	Offset uint64 `json:"offset"`
 }
 
 func (a *API) handleProduce(w http.ResponseWriter, r *http.Request) {
