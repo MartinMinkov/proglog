@@ -1,0 +1,78 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Binary output directory
+/bin/
+
+# macOS specific files
+.DS_Store
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+
+# Environment variables file
+.env
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+
+# Debug files
+debug
+
+# Project-specific build artifacts
+/dist/
+
+# Temporary files
+/tmp/
+
+# Go generated test files
+*_test.go
+
+# Air live reload temporary files
+tmp/
+
+# Profiling files
+*.prof
+
+# Generated protocol buffer code
+*.pb.go
+
+# Generated swagger documentation
+/docs/swagger/
+
+# Database files
+*.db
+*.sqlite
+
+# Certificate files
+*.pem
+*.cert
+*.key
+
+# Any files or directories starting with . except .gitignore
+.*
+!.gitignore
