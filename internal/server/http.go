@@ -10,6 +10,10 @@ type Address struct {
 	hostname string
 }
 
+func (a Address) String() string {
+	return a.hostname + ":" + a.port
+}
+
 func NewAddress(hostname, port string) Address {
 	return Address{hostname: hostname, port: port}
 }
@@ -21,15 +25,21 @@ type API struct {
 }
 
 func NewAPIServer(address Address) *API {
-	return &API{
+	api := &API{
 		address: address, router: http.NewServeMux(),
 		log: NewLog(),
 	}
+	api.InitializeRoutes()
+	return api
 }
 
 func (a *API) InitializeRoutes() {
 	http.HandleFunc("POST /", a.handleProduce)
 	http.HandleFunc("GET /", a.handleConsume)
+}
+
+func (a *API) Start() error {
+	return http.ListenAndServe(a.address.String(), a.router)
 }
 
 type ConsumeRequest struct {
