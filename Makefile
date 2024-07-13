@@ -20,7 +20,7 @@ setup:
 	mkdir -p $(BUILD_DIR)
 
 build: setup
-	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
+	$(GOBUILD) -gcflags="all=-N -l" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
 
 run: build
 	$(BUILD_DIR)/$(BINARY_NAME)
