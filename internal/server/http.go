@@ -34,8 +34,8 @@ func NewAPIServer(address Address) *API {
 }
 
 func (a *API) InitializeRoutes() {
-	http.HandleFunc("POST /", a.handleProduce)
-	http.HandleFunc("GET /", a.handleConsume)
+	a.router.HandleFunc("POST /", a.handleProduce)
+	a.router.HandleFunc("GET /", a.handleConsume)
 }
 
 func (a *API) Start() error {
