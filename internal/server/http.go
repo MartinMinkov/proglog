@@ -2,7 +2,9 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strconv"
 )
 
 type Address struct {
@@ -35,7 +37,7 @@ func NewAPIServer(address Address) *API {
 
 func (a *API) InitializeRoutes() {
 	a.router.HandleFunc("POST /", a.handleProduce)
-	a.router.HandleFunc("GET /", a.handleConsume)
+	a.router.HandleFunc("GET /{offset}", a.handleConsume)
 }
 
 func (a *API) Start() error {
@@ -51,13 +53,17 @@ type ConsumeResponse struct {
 }
 
 func (a *API) handleConsume(w http.ResponseWriter, r *http.Request) {
-	var req ConsumeRequest
-	err := json.NewDecoder(r.Body).Decode(&req)
+	offset := r.PathValue("offset")
+	if offset == "" {
+		BadRequestError(w, errors.New("missing offset"))
+		return
+	}
+	offsetVal, err := strconv.ParseUint(offset, 10, 64)
 	if err != nil {
 		BadRequestError(w, err)
 		return
 	}
-	record, err := a.log.Read(req.Offset)
+	record, err := a.log.Read(offsetVal)
 	if err != nil {
 		InternalServerError(w, err)
 		return
