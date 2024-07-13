@@ -29,6 +29,14 @@ clean:
 	$(GOCLEAN)
 	rm -rf $(BUILD_DIR)
 
+compile:
+	protoc api/v1/*.proto \
+		--go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative \
+		--proto_path=.
+
 # Build and run in one command
 build-and-run: build run
 
