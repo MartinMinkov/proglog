@@ -3,6 +3,7 @@ GOCMD=go
 GOBUILD=$(GOCMD) build
 GORUN=$(GOCMD) run
 GOCLEAN=$(GOCMD) clean
+GOTEST=$(GOCMD) test
 BINARY_NAME=proglog
 BINARY_UNIX=$(BINARY_NAME)_unix
 
@@ -36,6 +37,9 @@ compile:
 		--go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative \
 		--proto_path=.
+
+test:
+	$(GOTEST) -v ./...
 
 # Build and run in one command
 build-and-run: build run
