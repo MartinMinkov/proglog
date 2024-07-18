@@ -7,6 +7,9 @@ import (
 
 var ErrOffsetNotFound = errors.New("offset not found")
 
+/**
+ * Log is a log that stores records. It is thread safe. Each record is stored in a store.
+ */
 type Log struct {
 	mu      sync.Mutex
 	records []Record
@@ -33,6 +36,9 @@ func (c *Log) Read(offset uint64) (Record, error) {
 	return c.records[offset], nil
 }
 
+/**
+ * Record is type that stores a data payload and an offset of where it's located in a log. Any arbitary data can be stored in a record.
+ */
 type Record struct {
 	Value  []byte `json:"value"`
 	Offset uint64 `json:"offset"`

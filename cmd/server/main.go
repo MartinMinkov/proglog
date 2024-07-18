@@ -10,5 +10,4 @@ func main() {
 	address := server.NewAddress("localhost", "8080")
 	server := server.NewAPIServer(address)
 	log.Fatal(server.Start())
-
 }
