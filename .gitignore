@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# Test binary, built with `go test -c`
+*.test
+
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
@@ -46,20 +49,11 @@ debug
 # Temporary files
 /tmp/
 
-# Go generated test files
-*_test.go
-
 # Air live reload temporary files
 tmp/
 
 # Profiling files
 *.prof
-
-# Generated protocol buffer code
-*.pb.go
-
-# Generated swagger documentation
-/docs/swagger/
 
 # Database files
 *.db
