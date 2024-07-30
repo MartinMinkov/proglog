@@ -66,4 +66,5 @@ tmp/
 
 # Any files or directories starting with . except .gitignore
 .*
+!.github/
 !.gitignore
