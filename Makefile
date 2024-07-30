@@ -7,18 +7,16 @@ GOTEST=$(GOCMD) test
 BINARY_NAME=proglog
 BINARY_UNIX=$(BINARY_NAME)_unix
 
-# Main package path
 MAIN_PACKAGE=./cmd/server
-
-# Build directory
+CERT_DIR=./certs
 BUILD_DIR=./bin
 
-.PHONY: all build run clean setup
+.PHONY: all build run clean setup gencert
 
 all: build
 
 setup:
-	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR) $(CERT_DIR)
 
 build: setup
 	$(GOBUILD) -gcflags="all=-N -l" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
@@ -29,6 +27,7 @@ run: build
 clean:
 	$(GOCLEAN)
 	rm -rf $(BUILD_DIR)
+	rm -rf $(CERT_DIR)
 
 compile:
 	protoc api/v1/*.proto \
@@ -40,6 +39,11 @@ compile:
 
 test:
 	$(GOTEST) -v ./...
+
+gencert:
+	cfssl gencert -initca test/ca-csr.json | cfssljson -bare ca
+	cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=test/ca-config.json -profile=server test/server-csr.json | cfssljson -bare server
+	mv *.pem *.csr ${CERT_DIR}
 
 # Build and run in one command
 build-and-run: build run
