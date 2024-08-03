@@ -23,8 +23,8 @@ type grpcServer struct {
 	*Config
 }
 
-func NewGRPCServer(config *Config) (*grpc.Server, error) {
-	grpcServer := grpc.NewServer()
+func NewGRPCServer(config *Config, opts ...grpc.ServerOption) (*grpc.Server, error) {
+	grpcServer := grpc.NewServer(opts...)
 	server, err := newgrpcServer(config)
 	if err != nil {
 		return nil, err

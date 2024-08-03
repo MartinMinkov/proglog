@@ -11,7 +11,7 @@ MAIN_PACKAGE=./cmd/server
 CERT_DIR=./certs
 BUILD_DIR=./bin
 
-.PHONY: all build run clean setup gencert
+.PHONY: all build run clean setup test gencert
 
 all: build
 
@@ -38,7 +38,7 @@ compile:
 		--proto_path=.
 
 test:
-	$(GOTEST) -v ./...
+	CONFIG_DIR=../../$(CERT_DIR) $(GOTEST) -v ./...
 
 gencert:
 	cfssl gencert -initca test/ca-csr.json | cfssljson -bare ca

@@ -7,9 +7,11 @@ import (
 	"testing"
 
 	api "github.com/MartinMinkov/proglog/api/v1"
+	"github.com/MartinMinkov/proglog/internal/config"
 	"github.com/MartinMinkov/proglog/internal/log"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
 
@@ -31,11 +33,11 @@ func TestServer(t *testing.T) {
  * Define a helper function to setup a test server and client.
  */
 func setupTest(t *testing.T, fn func(*Config)) (
-	client api.LogClient, config *Config, teardown func()) {
+	client api.LogClient, c *Config, teardown func()) {
 	t.Helper()
 
 	// Set up a network listener for the server on a random port
-	l, err := net.Listen("tcp", ":0")
+	l, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
 	dir, err := os.MkdirTemp(os.TempDir(), "server_test")
@@ -50,11 +52,20 @@ func setupTest(t *testing.T, fn func(*Config)) (
 
 	// If a function is provided, call it with the configuration
 	if fn != nil {
-		fn(config)
+		fn(c)
 	}
 
+	serverTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
+		ServerAddress: l.Addr().String(),
+		CertFile:      config.ServerCertFile,
+		KeyFile:       config.ServerKeyFile,
+		CAFile:        config.CAFile,
+	})
+	require.NoError(t, err)
+	serverCreds := credentials.NewTLS(serverTLSConfig)
+
 	// Create a new GRPC server instance with the provided configuration
-	server, err := NewGRPCServer(cfg)
+	server, err := NewGRPCServer(cfg, grpc.Creds(serverCreds))
 	require.NoError(t, err)
 
 	// Run a goroutine to serve the server on the listener
@@ -62,7 +73,14 @@ func setupTest(t *testing.T, fn func(*Config)) (
 		server.Serve(l)
 	}()
 
-	clientOptions := []grpc.DialOption{grpc.WithInsecure()}
+	// Configure the client to use the provided CA configuration to verify the server's certificate
+	clientTLSConfig, err := config.SetupTLSConfig(config.TLSConfig{
+		CAFile: config.CAFile,
+	})
+	require.NoError(t, err)
+	clientCreds := credentials.NewTLS(clientTLSConfig)
+
+	clientOptions := []grpc.DialOption{grpc.WithInsecure(), grpc.WithTransportCredentials(clientCreds)}
 	cc, err := grpc.NewClient(l.Addr().String(), clientOptions...)
 	require.NoError(t, err)
 	client = api.NewLogClient(cc)
