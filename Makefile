@@ -17,6 +17,7 @@ all: build
 
 setup:
 	mkdir -p $(BUILD_DIR) $(CERT_DIR)
+	touch $(CERT_DIR)/.gitkeep
 
 build: setup
 	$(GOBUILD) -gcflags="all=-N -l" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
