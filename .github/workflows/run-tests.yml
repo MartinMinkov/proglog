@@ -26,8 +26,10 @@ jobs:
 
       - name: Install cfssl
         run: |
-          curl -L https://github.com/cloudflare/cfssl/releases/latest/download/cfssl_1.6.4_linux_amd64 -o cfssl
-          sudo install cfssl /usr/local/bin/
+          curl -L -o /usr/local/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+          curl -L -o /usr/local/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+          curl -L -o /usr/local/bin/cfssl-certinfo https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd
+          chmod +x /usr/local/bin/cfssl*
 
       - name: Setup environment
         run: |
