@@ -21,16 +21,6 @@ jobs:
         with:
           go-version: "1.22.0"
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
       - name: Install dependencies
         run: go mod download
 
@@ -39,10 +29,12 @@ jobs:
           curl -L https://github.com/cloudflare/cfssl/releases/latest/download/cfssl_1.6.4_linux_amd64 -o cfssl
           sudo install cfssl /usr/local/bin/
 
-      - name: Generate TLS certificates
-        run: make setup && make gencert
+      - name: Setup environment
+        run: |
+          make setup
+          make gencert
+          echo "CONFIG_DIR=${{ github.workspace }}/certs" >> $GITHUB_ENV
 
       - name: Run tests
         run: |
-          export CONFIG_DIR=${{ github.workspace }}/certs
           make test
