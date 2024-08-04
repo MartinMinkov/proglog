@@ -10,6 +10,8 @@ require (
 )
 
 require (
+	github.com/casbin/casbin/v2 v2.98.0 // indirect
+	github.com/casbin/govaluate v1.2.0 // indirect
 	github.com/cloudflare/cfssl v1.6.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
