@@ -80,7 +80,7 @@ func setupTest(t *testing.T, fn func(*Config)) (
 	require.NoError(t, err)
 	clientCreds := credentials.NewTLS(clientTLSConfig)
 
-	clientOptions := []grpc.DialOption{grpc.WithInsecure(), grpc.WithTransportCredentials(clientCreds)}
+	clientOptions := []grpc.DialOption{grpc.WithTransportCredentials(clientCreds)}
 	cc, err := grpc.NewClient(l.Addr().String(), clientOptions...)
 	require.NoError(t, err)
 	client = api.NewLogClient(cc)
