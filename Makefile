@@ -11,7 +11,7 @@ MAIN_PACKAGE=./cmd/server
 CERT_DIR=./certs
 BUILD_DIR=./bin
 
-.PHONY: all build run clean setup test gencert install-tools
+.PHONY: all build run clean setup test gencert
 
 all: build
 
@@ -44,10 +44,6 @@ gencert:
 	cfssl gencert -initca test/ca-csr.json | cfssljson -bare ca
 	cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=test/ca-config.json -profile=server test/server-csr.json | cfssljson -bare server
 	mv *.pem *.csr ${CERT_DIR}
-
-install-tools:
-	go get github.com/cloudflare/cfssl/cmd/cfssl@latest
-	go get github.com/cloudflare/cfssl/cmd/cfssljson@latest
 
 # Build and run in one command
 build-and-run: build run

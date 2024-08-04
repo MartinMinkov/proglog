@@ -34,8 +34,10 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Install tools
-        run: make install-tools
+      - name: Install cfssl
+        run: |
+          curl -L https://github.com/cloudflare/cfssl/releases/latest/download/cfssl_1.6.4_linux_amd64 -o cfssl
+          sudo install cfssl /usr/local/bin/
 
       - name: Generate TLS certificates
         run: make setup && make gencert
