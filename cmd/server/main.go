@@ -1,41 +1,12 @@
 package main
 
-import (
-	"net"
-	"os"
-
-	"github.com/MartinMinkov/proglog/internal/log"
-	"github.com/MartinMinkov/proglog/internal/server"
-)
+import "log"
 
 func main() {
-	listener, err := net.Listen("tcp", ":8080")
+	app, err := SetupGRPCServer()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to start gRPC server: %v", err)
 	}
-	defer listener.Close()
-
-	dir, err := os.MkdirTemp(os.TempDir(), "proglog")
-	if err != nil {
-		panic(err)
-	}
-
-	clog, err := log.NewLog(dir, log.Config{})
-	if err != nil {
-		panic(err)
-	}
-	defer clog.Remove()
-
-	config := &server.Config{
-		CommitLog: clog,
-	}
-	server, err := server.NewGRPCServer(config)
-	if err != nil {
-		panic(err)
-	}
-	defer server.Stop()
-
-	go func() {
-		server.Serve(listener)
-	}()
+	defer app.Cleanup()
+	app.Start()
 }
