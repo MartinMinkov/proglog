@@ -55,6 +55,8 @@ tmp/
 # Profiling files
 *.prof
 
+auth/*
+
 # Database files
 *.db
 *.sqlite

@@ -8,7 +8,9 @@ BINARY_NAME=proglog
 BINARY_UNIX=$(BINARY_NAME)_unix
 
 MAIN_PACKAGE=./cmd/server
+TEST_DIR=./test
 CERT_DIR=./certs
+AUTH_DIR=./auth
 BUILD_DIR=./bin
 
 .PHONY: all build run clean setup test gencert
@@ -23,7 +25,7 @@ build: setup
 	$(GOBUILD) -gcflags="all=-N -l" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
 
 run: build
-	CONFIG_DIR=$(CERT_DIR) $(BUILD_DIR)/$(BINARY_NAME)
+	CERT_DIR=$(CERT_DIR) AUTH_DIR=$(AUTH_DIR) $(BUILD_DIR)/$(BINARY_NAME)
 
 clean:
 	$(GOCLEAN)
@@ -38,8 +40,14 @@ compile:
 		--go-grpc_opt=paths=source_relative \
 		--proto_path=.
 
-test:
-	CONFIG_DIR=../../$(CERT_DIR) $(GOTEST) -v ./...
+$(AUTH_DIR)/model.conf: $(TEST_DIR)/model.conf
+	cp $< $@
+
+$(AUTH_DIR)/policy.csv: $(TEST_DIR)/policy.csv
+	cp $< $@
+
+test: $(AUTH_DIR)/model.conf $(AUTH_DIR)/policy.csv
+	CERT_DIR=../../$(CERT_DIR) AUTH_DIR=../../$(AUTH_DIR) $(GOTEST) -v -race -count=1 ./...
 
 gencert:
 	cfssl gencert -initca test/ca-csr.json | cfssljson -bare ca
