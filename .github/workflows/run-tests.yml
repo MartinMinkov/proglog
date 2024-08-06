@@ -1,0 +1,43 @@
+name: Run Go Tests
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.0"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Install cfssl
+        run: |
+          curl -L -o /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssl_1.6.5_linux_amd64
+          curl -L -o /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssljson_1.6.5_linux_amd64
+          curl -L -o /usr/local/bin/cfssl-certinfo https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssl-certinfo_1.6.5_linux_amd64
+          chmod +x /usr/local/bin/cfssl*
+
+      - name: Setup environment
+        run: |
+          make setup
+          make gencert || exit 1
+          echo "CONFIG_DIR=${{ github.workspace }}/certs" >> $GITHUB_ENV
+          echo "AUTH_DIR=${{ github.workspace }}/auth" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: |
+          make test

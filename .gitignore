@@ -55,6 +55,8 @@ tmp/
 # Profiling files
 *.prof
 
+auth/*
+
 # Database files
 *.db
 *.sqlite
@@ -63,7 +65,10 @@ tmp/
 *.pem
 *.cert
 *.key
+*.csr
 
 # Any files or directories starting with . except .gitignore
 .*
+!.github/
 !.gitignore
+!.gitkeep
