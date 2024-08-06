@@ -17,6 +17,13 @@ if ! command -v grpcurl &> /dev/null; then
     exit 1
 fi
 
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed. Please install it first."
+    echo "You can install it using your package manager, e.g., 'sudo apt-get install jq' on Ubuntu"
+    exit 1
+fi
+
 # Get the directory of the script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Get the root directory (one level up from scripts)
@@ -45,13 +52,20 @@ else
 fi
 
 # Make the grpcurl POST request with verbose output
-grpcurl "${GRPCURL_OPTS[@]}" \
+RESPONSE=$(grpcurl "${GRPCURL_OPTS[@]}" \
     -v \
     -d "$DATA" \
     -import-path "$ROOT_DIR" \
     -proto "$ROOT_DIR/api/v1/log.proto" \
     -H 'Content-Type: application/json' \
     "$HOST" \
-    log.v1.Log/Consume 2>&1 | sed 's/^/[DEBUG] /'
+    log.v1.Log/Consume 2>&1)
+
+# Print the debug output
+echo "$RESPONSE" | sed 's/^/[DEBUG] /'
+
+# Extract and decode the base64 value
+DECODED_VALUE=$(echo "$RESPONSE" | grep -o '"value": "[^"]*"' | sed 's/"value": "\(.*\)"/\1/' | base64 --decode)
 
 echo
+echo "Decoded value: $DECODED_VALUE"
