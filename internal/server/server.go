@@ -2,10 +2,18 @@ package server
 
 import (
 	"context"
+	"time"
 
 	api "github.com/MartinMinkov/proglog/api/v1"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -41,12 +49,33 @@ type grpcServer struct {
 }
 
 func NewGRPCServer(config *Config, opts ...grpc.ServerOption) (*grpc.Server, error) {
+	// Set up our logging and tracing middleware
+	logger := zap.L().Named("grpc_server")
+	// Apply OpenCensus tracing
+	zapOpts := []grpc_zap.Option{
+		grpc_zap.WithDurationField(func(duration time.Duration) zapcore.Field {
+			// Convert duration to nanoseconds for OpenCensus
+			return zap.Int64("grpc.time_ns", duration.Nanoseconds())
+		}),
+	}
+	// Apply OpenCensus metrics and always sample each request
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	err := view.Register(ocgrpc.DefaultServerViews...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set up authentication middleware
 	opts = append(opts, grpc.StreamInterceptor(
 		grpc_middleware.ChainStreamServer(
 			grpc_auth.StreamServerInterceptor(authenticate),
 		)), grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+		grpc_ctxtags.UnaryServerInterceptor(),
+		grpc_zap.UnaryServerInterceptor(logger, zapOpts...),
 		grpc_auth.UnaryServerInterceptor(authenticate),
 	)))
+
+	grpc.StatsHandler(&ocgrpc.ServerHandler{})
 	grpcServer := grpc.NewServer(opts...)
 	server, err := newgrpcServer(config)
 	if err != nil {
