@@ -34,7 +34,7 @@ jobs:
       - name: Setup environment
         run: |
           make setup
-          make gencert
+          make gencert || exit 1
           echo "CONFIG_DIR=${{ github.workspace }}/certs" >> $GITHUB_ENV
           echo "AUTH_DIR=${{ github.workspace }}/auth" >> $GITHUB_ENV
 

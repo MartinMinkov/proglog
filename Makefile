@@ -18,8 +18,9 @@ BUILD_DIR=./bin
 all: build
 
 setup:
-	mkdir -p $(BUILD_DIR) $(CERT_DIR)
+	mkdir -p $(BUILD_DIR) $(CERT_DIR) $(AUTH_DIR)
 	touch $(CERT_DIR)/.gitkeep
+	touch $(AUTH_DIR)/.gitkeep
 
 build: setup
 	$(GOBUILD) -gcflags="all=-N -l" -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
@@ -31,6 +32,7 @@ clean:
 	$(GOCLEAN)
 	rm -rf $(BUILD_DIR)
 	rm -rf $(CERT_DIR)
+	rm -rf $(AUTH_DIR)
 
 compile:
 	protoc api/v1/*.proto \
