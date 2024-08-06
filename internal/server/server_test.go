@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"flag"
 	"net"
 	"os"
 	"testing"
@@ -21,11 +20,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var debug = flag.Bool("debug", false, "Enable observability for debugging")
-
 func TestMain(m *testing.M) {
-	flag.Parse()
-	if *debug {
+	if os.Getenv("DEBUG") == "true" {
 		logger, err := zap.NewDevelopment()
 		if err != nil {
 			panic(err)
@@ -33,6 +29,7 @@ func TestMain(m *testing.M) {
 		zap.ReplaceGlobals(logger)
 	}
 	os.Exit(m.Run())
+
 }
 
 func TestServer(t *testing.T) {
@@ -91,7 +88,7 @@ func setupTest(t *testing.T, fn func(*Config)) (
 	}
 
 	var telemetryExporter *exporter.LogExporter
-	if *debug {
+	if os.Getenv("DEBUG") == "true" {
 		metricsLogFile, err := os.CreateTemp(os.TempDir(), "metrics-*.log")
 		require.NoError(t, err)
 		t.Logf("Metrics will be logged to %s", metricsLogFile.Name())
