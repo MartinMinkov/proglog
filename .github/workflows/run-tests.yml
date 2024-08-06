@@ -12,7 +12,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,18 +21,23 @@ jobs:
         with:
           go-version: "1.22.0"
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
       - name: Install dependencies
         run: go mod download
 
+      - name: Install cfssl
+        run: |
+          curl -L -o /usr/local/bin/cfssl https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssl_1.6.5_linux_amd64
+          curl -L -o /usr/local/bin/cfssljson https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssljson_1.6.5_linux_amd64
+          curl -L -o /usr/local/bin/cfssl-certinfo https://github.com/cloudflare/cfssl/releases/download/v1.6.5/cfssl-certinfo_1.6.5_linux_amd64
+          chmod +x /usr/local/bin/cfssl*
+
+      - name: Setup environment
+        run: |
+          make setup
+          make gencert || exit 1
+          echo "CONFIG_DIR=${{ github.workspace }}/certs" >> $GITHUB_ENV
+          echo "AUTH_DIR=${{ github.workspace }}/auth" >> $GITHUB_ENV
+
       - name: Run tests
-        run: make test
+        run: |
+          make test
