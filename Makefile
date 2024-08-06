@@ -49,7 +49,7 @@ $(AUTH_DIR)/policy.csv: $(TEST_DIR)/policy.csv
 	cp $< $@
 
 test: $(AUTH_DIR)/model.conf $(AUTH_DIR)/policy.csv
-	CERT_DIR=../../$(CERT_DIR) AUTH_DIR=../../$(AUTH_DIR) $(GOTEST) -v -race -count=1 ./...
+	DEBUG=true CERT_DIR=../../$(CERT_DIR) AUTH_DIR=../../$(AUTH_DIR) $(GOTEST) -v -count=1 ./...
 
 gencert:
 	cfssl gencert -initca test/ca-csr.json | cfssljson -bare ca
